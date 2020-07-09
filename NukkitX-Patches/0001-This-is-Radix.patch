@@ -1,0 +1,70 @@
+From ba35eda9397792964c1a23804e66235b6be0112c Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Wed, 8 Jul 2020 19:19:25 -0500
+Subject: [PATCH] This is Radix
+
+
+diff --git a/pom.xml b/pom.xml
+index 0f862f67..23556af6 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -2,9 +2,9 @@
+          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+ 
+-    <name>Nukkit</name>
+-    <groupId>cn.nukkit</groupId>
+-    <artifactId>nukkit</artifactId>
++    <name>Radix</name>
++    <groupId>org.compmc</groupId>
++    <artifactId>radix</artifactId>
+     <version>1.0-SNAPSHOT</version>
+ 
+     <properties>
+@@ -40,6 +40,7 @@
+         </repository>
+     </repositories>
+ 
++    <!--
+     <distributionManagement>
+         <repository>
+             <id>releases</id>
+@@ -52,6 +53,7 @@
+             <url>https://repo.nukkitx.com/snapshot</url>
+         </snapshotRepository>
+     </distributionManagement>
++    -->
+ 
+     <dependencies>
+         <dependency>
+diff --git a/src/main/java/cn/nukkit/Server.java b/src/main/java/cn/nukkit/Server.java
+index 89206b40..6022a1de 100644
+--- a/src/main/java/cn/nukkit/Server.java
++++ b/src/main/java/cn/nukkit/Server.java
+@@ -1246,8 +1246,8 @@ public class Server {
+         return this.queryRegenerateEvent;
+     }
+ 
+-    public String getName() {
+-        return "Nukkit";
++    public static String getName() {
++        return "Radix";
+     }
+ 
+     public boolean isRunning() {
+diff --git a/src/main/java/cn/nukkit/console/NukkitConsole.java b/src/main/java/cn/nukkit/console/NukkitConsole.java
+index a83a589b..cec927fa 100644
+--- a/src/main/java/cn/nukkit/console/NukkitConsole.java
++++ b/src/main/java/cn/nukkit/console/NukkitConsole.java
+@@ -56,7 +56,7 @@ public class NukkitConsole extends SimpleTerminalConsole {
+     @Override
+     protected LineReader buildReader(LineReaderBuilder builder) {
+         builder.completer(new NukkitConsoleCompleter(server));
+-        builder.appName("Nukkit");
++        builder.appName(Server.getName());
+         builder.option(LineReader.Option.HISTORY_BEEP, false);
+         builder.option(LineReader.Option.HISTORY_IGNORE_DUPS, true);
+         builder.option(LineReader.Option.HISTORY_IGNORE_SPACE, true);
+-- 
+2.23.0
+
