@@ -1,0 +1,69 @@
+From e4f5f1fdaabfd587c9ba33b2a570e495567eb54b Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Wed, 8 Jul 2020 20:20:40 -0500
+Subject: [PATCH] Add on ground API
+
+
+diff --git a/src/main/java/cn/nukkit/Player.java b/src/main/java/cn/nukkit/Player.java
+index 842b38b1..eefab9e8 100644
+--- a/src/main/java/cn/nukkit/Player.java
++++ b/src/main/java/cn/nukkit/Player.java
+@@ -1391,12 +1391,23 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+                 }
+             }
+ 
+-            this.onGround = onGround;
++            // Radix start
++            updateGroundStatus(onGround);
++            // Radix end
+         }
+ 
+         this.isCollided = this.onGround;
+     }
+ 
++    // Radix start
++    private void updateGroundStatus(boolean onGround) {
++        if (this.onGround == onGround) return;
++
++        PlayerOnGroundEvent call = new PlayerOnGroundEvent(this, onGround);
++        this.server.getPluginManager().callEvent(call);
++    }
++    // Radix end
++
+     @Override
+     protected void checkBlockCollision() {
+         boolean portal = false;
+diff --git a/src/main/java/cn/nukkit/event/player/PlayerOnGroundEvent.java b/src/main/java/cn/nukkit/event/player/PlayerOnGroundEvent.java
+new file mode 100644
+index 00000000..8d4b5049
+--- /dev/null
++++ b/src/main/java/cn/nukkit/event/player/PlayerOnGroundEvent.java
+@@ -0,0 +1,25 @@
++package cn.nukkit.event.player;
++
++import cn.nukkit.Player;
++import cn.nukkit.block.Block;
++import cn.nukkit.event.Cancellable;
++import cn.nukkit.event.HandlerList;
++
++public class PlayerOnGroundEvent extends PlayerEvent implements Cancellable {
++    private static final HandlerList handlers = new HandlerList();
++
++    public static HandlerList getHandlers() {
++        return handlers;
++    }
++
++    private final boolean onGround;
++
++    public PlayerOnGroundEvent(Player player, boolean onGround) {
++        this.player = player;
++        this.onGround = onGround;
++    }
++
++    public boolean isOnGround() {
++        return onGround;
++    }
++}
+-- 
+2.23.0
+

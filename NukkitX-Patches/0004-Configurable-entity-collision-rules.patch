@@ -1,0 +1,98 @@
+From 6e263974885a8ba6fa262ac05fac5778b2c77bda Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Wed, 8 Jul 2020 22:17:01 -0500
+Subject: [PATCH] Configurable entity collision rules
+
+
+diff --git a/src/main/java/cn/nukkit/Player.java b/src/main/java/cn/nukkit/Player.java
+index 150aeb08..d662303b 100644
+--- a/src/main/java/cn/nukkit/Player.java
++++ b/src/main/java/cn/nukkit/Player.java
+@@ -253,6 +253,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+ 
+     // Radix start
+     boolean allowedToPickupXP = true;
++    boolean collidesWithEntities = true;
+     // Radix end
+ 
+     public int getStartActionTick() {
+@@ -464,7 +465,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+ 
+     @Override
+     public boolean canCollideWith(Entity entity) {
+-        return false;
++        return !isSpectator() && this.collidesWithEntities;
+     }
+ 
+     @Override
+@@ -5090,4 +5091,12 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+                 "', location=" + super.toString() +
+                 ')';
+     }
++
++    // Radix start
++
++    public void setCollidesWithEntities(boolean collidesWithEntities) {
++        this.collidesWithEntities = collidesWithEntities;
++    }
++
++    // Radix end
+ }
+diff --git a/src/main/java/cn/nukkit/entity/EntityLiving.java b/src/main/java/cn/nukkit/entity/EntityLiving.java
+index c086e258..03581036 100644
+--- a/src/main/java/cn/nukkit/entity/EntityLiving.java
++++ b/src/main/java/cn/nukkit/entity/EntityLiving.java
+@@ -98,7 +98,8 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
+     }
+ 
+     public void collidingWith(Entity ent) { // can override (IronGolem|Bats)
+-        ent.applyEntityCollision(this);
++        if (ent.canCollideWith(this))
++            ent.applyEntityCollision(this);
+     }
+ 
+     @Override
+diff --git a/src/main/java/cn/nukkit/entity/item/EntityBoat.java b/src/main/java/cn/nukkit/entity/item/EntityBoat.java
+index cf01f678..a409f9b8 100644
+--- a/src/main/java/cn/nukkit/entity/item/EntityBoat.java
++++ b/src/main/java/cn/nukkit/entity/item/EntityBoat.java
+@@ -374,7 +374,7 @@ public class EntityBoat extends EntityVehicle {
+     public void applyEntityCollision(Entity entity) {
+         if (this.riding == null && entity.riding != this && !entity.passengers.contains(this)) {
+             if (!entity.boundingBox.intersectsWith(this.boundingBox.grow(0.20000000298023224, -0.1, 0.20000000298023224))
+-                    || entity instanceof Player && ((Player) entity).getGamemode() == Player.SPECTATOR) {
++                    || entity instanceof Player && !entity.canCollideWith(this)) { // Radix - check collision
+                 return;
+             }
+ 
+diff --git a/src/main/java/cn/nukkit/entity/item/EntityMinecartAbstract.java b/src/main/java/cn/nukkit/entity/item/EntityMinecartAbstract.java
+index e474a9df..d1c194d4 100644
+--- a/src/main/java/cn/nukkit/entity/item/EntityMinecartAbstract.java
++++ b/src/main/java/cn/nukkit/entity/item/EntityMinecartAbstract.java
+@@ -296,7 +296,7 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
+ 
+     @Override
+     public void applyEntityCollision(cn.nukkit.entity.Entity entity) {
+-        if (entity != riding && !(entity instanceof Player && ((Player) entity).getGamemode() == Player.SPECTATOR)) {
++        if (entity != riding && !(entity instanceof Player && entity.canCollideWith(this))) { // Radix - check collision
+             if (entity instanceof EntityLiving
+                     && !(entity instanceof EntityHuman)
+                     && motionX * motionX + motionZ * motionZ > 0.01D
+diff --git a/src/main/java/cn/nukkit/entity/projectile/EntityProjectile.java b/src/main/java/cn/nukkit/entity/projectile/EntityProjectile.java
+index 719bfaac..0d6063c4 100644
+--- a/src/main/java/cn/nukkit/entity/projectile/EntityProjectile.java
++++ b/src/main/java/cn/nukkit/entity/projectile/EntityProjectile.java
+@@ -135,9 +135,7 @@ public abstract class EntityProjectile extends Entity {
+             Entity nearEntity = null;
+ 
+             for (Entity entity : list) {
+-                if (/*!entity.canCollideWith(this) or */
+-                        (entity == this.shootingEntity && this.ticksLived < 5)
+-                        ) {
++                if (!entity.canCollideWith(this)) {
+                     continue;
+                 }
+ 
+-- 
+2.23.0
+

@@ -1,0 +1,117 @@
+From 0af05073aea5598a3502b967d5bc584617d8b96b Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Wed, 8 Jul 2020 21:16:37 -0500
+Subject: [PATCH] Improve XP pickup control
+
+
+diff --git a/src/main/java/cn/nukkit/Player.java b/src/main/java/cn/nukkit/Player.java
+index eefab9e8..150aeb08 100644
+--- a/src/main/java/cn/nukkit/Player.java
++++ b/src/main/java/cn/nukkit/Player.java
+@@ -23,6 +23,7 @@ import cn.nukkit.event.entity.ProjectileLaunchEvent;
+ import cn.nukkit.event.inventory.InventoryCloseEvent;
+ import cn.nukkit.event.inventory.InventoryPickupArrowEvent;
+ import cn.nukkit.event.inventory.InventoryPickupItemEvent;
++import cn.nukkit.event.inventory.InventoryPickupXPEvent;
+ import cn.nukkit.event.player.*;
+ import cn.nukkit.event.player.PlayerAsyncPreLoginEvent.LoginResult;
+ import cn.nukkit.event.player.PlayerInteractEvent.Action;
+@@ -250,6 +251,10 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+     protected double lastRightClickTime = 0.0;
+     protected Vector3 lastRightClickPos = null;
+ 
++    // Radix start
++    boolean allowedToPickupXP = true;
++    // Radix end
++
+     public int getStartActionTick() {
+         return startAction;
+     }
+@@ -1331,6 +1336,10 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+         return this.gamemode == SPECTATOR;
+     }
+ 
++    public boolean canPickupXP() {
++        return !this.isSpectator() && this.allowedToPickupXP;
++    }
++
+     public boolean isAdventure() {
+         return this.gamemode == ADVENTURE;
+     }
+@@ -4940,9 +4949,17 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+         }
+ 
+         int tick = this.getServer().getTick();
+-        if (pickedXPOrb < tick && entity instanceof EntityXPOrb && this.boundingBox.isVectorInside(entity)) {
++        if (pickedXPOrb < tick && entity instanceof EntityXPOrb && this.boundingBox.isVectorInside(entity) && this.canPickupXP()) {
+             EntityXPOrb xpOrb = (EntityXPOrb) entity;
+             if (xpOrb.getPickupDelay() <= 0) {
++                // Radix start
++                InventoryPickupXPEvent ev;
++                this.server.getPluginManager().callEvent(ev = new InventoryPickupXPEvent(this.inventory, (EntityXPOrb) entity));
++                if (ev.isCancelled()) {
++                    return false;
++                }
++                // Radix end
++
+                 int exp = xpOrb.getExp();
+                 entity.kill();
+                 this.getLevel().addSound(this, Sound.RANDOM_ORB);
+diff --git a/src/main/java/cn/nukkit/entity/item/EntityXPOrb.java b/src/main/java/cn/nukkit/entity/item/EntityXPOrb.java
+index 7c0dd239..983f0254 100644
+--- a/src/main/java/cn/nukkit/entity/item/EntityXPOrb.java
++++ b/src/main/java/cn/nukkit/entity/item/EntityXPOrb.java
+@@ -144,14 +144,14 @@ public class EntityXPOrb extends Entity {
+ 
+             if (this.closestPlayer == null || this.closestPlayer.distanceSquared(this) > 64.0D) {
+                 for (Player p : level.getPlayers().values()) {
+-                    if (!p.isSpectator() && p.distance(this) <= 8) {
++                    if (!p.canPickupXP() && p.distance(this) <= 8) {
+                         this.closestPlayer = p;
+                         break;
+                     }
+                 }
+             }
+ 
+-            if (this.closestPlayer != null && this.closestPlayer.isSpectator()) {
++            if (this.closestPlayer != null && !this.closestPlayer.canPickupXP()) {
+                 this.closestPlayer = null;
+             }
+ 
+diff --git a/src/main/java/cn/nukkit/event/inventory/InventoryPickupXPEvent.java b/src/main/java/cn/nukkit/event/inventory/InventoryPickupXPEvent.java
+new file mode 100644
+index 00000000..13af2f32
+--- /dev/null
++++ b/src/main/java/cn/nukkit/event/inventory/InventoryPickupXPEvent.java
+@@ -0,0 +1,27 @@
++package cn.nukkit.event.inventory;
++
++import cn.nukkit.entity.item.EntityXPOrb;
++import cn.nukkit.entity.projectile.EntityArrow;
++import cn.nukkit.event.Cancellable;
++import cn.nukkit.event.HandlerList;
++import cn.nukkit.inventory.Inventory;
++
++public class InventoryPickupXPEvent extends InventoryEvent implements Cancellable {
++
++    private static final HandlerList handlers = new HandlerList();
++
++    public static HandlerList getHandlers() {
++        return handlers;
++    }
++
++    private final EntityXPOrb xpOrb;
++
++    public InventoryPickupXPEvent(Inventory inventory, EntityXPOrb xpOrb) {
++        super(inventory);
++        this.xpOrb = xpOrb;
++    }
++
++    public EntityXPOrb getXpOrb() {
++        return xpOrb;
++    }
++}
+\ No newline at end of file
+-- 
+2.23.0
+

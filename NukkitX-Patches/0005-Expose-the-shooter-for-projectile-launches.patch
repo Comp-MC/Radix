@@ -1,0 +1,92 @@
+From 2e3e3a7da32c1eb972adcb6eb4b3f740a8f11747 Mon Sep 17 00:00:00 2001
+From: Austin Mayes <austin@avicus.net>
+Date: Wed, 8 Jul 2020 22:47:01 -0500
+Subject: [PATCH] Expose the shooter for projectile launches
+
+
+diff --git a/src/main/java/cn/nukkit/Player.java b/src/main/java/cn/nukkit/Player.java
+index d662303b..e68a965e 100644
+--- a/src/main/java/cn/nukkit/Player.java
++++ b/src/main/java/cn/nukkit/Player.java
+@@ -5058,7 +5058,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+         EntityFishingHook fishingHook = new EntityFishingHook(chunk, nbt, this);
+         fishingHook.setMotion(new Vector3(-Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)) * f * f, -Math.sin(Math.toRadians(pitch)) * f * f,
+                 Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)) * f * f));
+-        ProjectileLaunchEvent ev = new ProjectileLaunchEvent(fishingHook);
++        ProjectileLaunchEvent ev = new ProjectileLaunchEvent(fishingHook, this); // Radix - expose shooter
+         this.getServer().getPluginManager().callEvent(ev);
+         if (ev.isCancelled()) {
+             fishingHook.kill();
+diff --git a/src/main/java/cn/nukkit/event/entity/ProjectileLaunchEvent.java b/src/main/java/cn/nukkit/event/entity/ProjectileLaunchEvent.java
+index 8b9b08c6..4804ca59 100644
+--- a/src/main/java/cn/nukkit/event/entity/ProjectileLaunchEvent.java
++++ b/src/main/java/cn/nukkit/event/entity/ProjectileLaunchEvent.java
+@@ -1,5 +1,6 @@
+ package cn.nukkit.event.entity;
+ 
++import cn.nukkit.entity.Entity;
+ import cn.nukkit.entity.projectile.EntityProjectile;
+ import cn.nukkit.event.Cancellable;
+ import cn.nukkit.event.HandlerList;
+@@ -12,11 +13,18 @@ public class ProjectileLaunchEvent extends EntityEvent implements Cancellable {
+         return handlers;
+     }
+ 
+-    public ProjectileLaunchEvent(EntityProjectile entity) {
++    private final Entity shooter; // Radix - expose shooter
++
++    public ProjectileLaunchEvent(EntityProjectile entity, Entity shooter) {
+         this.entity = entity;
++        this.shooter = shooter;
+     }
+ 
+     public EntityProjectile getEntity() {
+         return (EntityProjectile) this.entity;
+     }
++
++    public Entity getShooter() {
++        return shooter;
++    }
+ }
+diff --git a/src/main/java/cn/nukkit/item/ItemBow.java b/src/main/java/cn/nukkit/item/ItemBow.java
+index af5f2306..8ab69e10 100644
+--- a/src/main/java/cn/nukkit/item/ItemBow.java
++++ b/src/main/java/cn/nukkit/item/ItemBow.java
+@@ -132,7 +132,7 @@ public class ItemBow extends ItemTool {
+                 }
+             }
+             if (entityShootBowEvent.getProjectile() != null) {
+-                ProjectileLaunchEvent projectev = new ProjectileLaunchEvent(entityShootBowEvent.getProjectile());
++                ProjectileLaunchEvent projectev = new ProjectileLaunchEvent(entityShootBowEvent.getProjectile(), player); // Radix - expose shooter
+                 Server.getInstance().getPluginManager().callEvent(projectev);
+                 if (projectev.isCancelled()) {
+                     entityShootBowEvent.getProjectile().kill();
+diff --git a/src/main/java/cn/nukkit/item/ItemTrident.java b/src/main/java/cn/nukkit/item/ItemTrident.java
+index f56d3098..fc133a8b 100644
+--- a/src/main/java/cn/nukkit/item/ItemTrident.java
++++ b/src/main/java/cn/nukkit/item/ItemTrident.java
+@@ -91,7 +91,7 @@ public class ItemTrident extends ItemTool {
+         } else {
+             entityShootBowEvent.getProjectile().setMotion(entityShootBowEvent.getProjectile().getMotion().multiply(entityShootBowEvent.getForce()));
+             if (entityShootBowEvent.getProjectile() instanceof EntityProjectile) {
+-                ProjectileLaunchEvent ev = new ProjectileLaunchEvent(entityShootBowEvent.getProjectile());
++                ProjectileLaunchEvent ev = new ProjectileLaunchEvent(entityShootBowEvent.getProjectile(), player); // Radix - expose shooter
+                 Server.getInstance().getPluginManager().callEvent(ev);
+                 if (ev.isCancelled()) {
+                     entityShootBowEvent.getProjectile().kill();
+diff --git a/src/main/java/cn/nukkit/item/ProjectileItem.java b/src/main/java/cn/nukkit/item/ProjectileItem.java
+index 5daac1d2..b06c3085 100644
+--- a/src/main/java/cn/nukkit/item/ProjectileItem.java
++++ b/src/main/java/cn/nukkit/item/ProjectileItem.java
+@@ -53,7 +53,7 @@ public abstract class ProjectileItem extends Item {
+             projectile.setMotion(projectile.getMotion().multiply(this.getThrowForce()));
+ 
+             if (projectile instanceof EntityProjectile) {
+-                ProjectileLaunchEvent ev = new ProjectileLaunchEvent((EntityProjectile) projectile);
++                ProjectileLaunchEvent ev = new ProjectileLaunchEvent((EntityProjectile) projectile, player); // Radix - expose shooter
+ 
+                 player.getServer().getPluginManager().callEvent(ev);
+                 if (ev.isCancelled()) {
+-- 
+2.23.0
+
