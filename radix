@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+case "$1" in
+    "rb" | "rbp" | "rebuild")
+        scripts/rebuildPatches.sh
+    ;;
+    "p" | "patch")
+        scripts/build.sh
+    ;;
+    "m" | "up" | "merge")
+        scripts/mergeUpstream.sh
+    ;;
+    "b" | "build")
+        scripts/build.sh --jar
+    ;;
+    "e" | "edit")
+        scripts/edit.sh
+    ;;
+    *)
+        echo "Radix build tool command. This provides a variety of commands to control the build process"
+        echo "build. View below for details of the available commands."
+        echo ""
+        echo "Commands:"
+        echo "  * rb, rbp, rebuild | Rebuilds the patches"
+        echo "  * p, patch         | Applies all the patches to NukkitX"
+        echo "  * m, up, merge     | Utility to aid in merging upstream"
+        echo "  * b, build         | Builds the project"
+        echo "  * e, edit          | Runs git rebase -i for Radix, allowing patches to be easily modified"
+    ;;
+esac
