@@ -1,0 +1,3 @@
+[submodule "NukkitX"]
+	path = NukkitX
+	url = git@github.com:CloudburstMC/Nukkit.git
