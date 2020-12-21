@@ -1,22 +1,22 @@
-From 6e263974885a8ba6fa262ac05fac5778b2c77bda Mon Sep 17 00:00:00 2001
+From 83834fbef0bc10bb8ef94318dd725e4bca798a4f Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Wed, 8 Jul 2020 22:17:01 -0500
 Subject: [PATCH] Configurable entity collision rules
 
 
 diff --git a/src/main/java/cn/nukkit/Player.java b/src/main/java/cn/nukkit/Player.java
-index 150aeb08..d662303b 100644
+index 28d207477..63d532931 100644
 --- a/src/main/java/cn/nukkit/Player.java
 +++ b/src/main/java/cn/nukkit/Player.java
-@@ -253,6 +253,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
- 
+@@ -256,6 +256,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+     private int timeSinceRest;
      // Radix start
      boolean allowedToPickupXP = true;
 +    boolean collidesWithEntities = true;
      // Radix end
  
      public int getStartActionTick() {
-@@ -464,7 +465,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+@@ -467,7 +468,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
  
      @Override
      public boolean canCollideWith(Entity entity) {
@@ -25,9 +25,9 @@ index 150aeb08..d662303b 100644
      }
  
      @Override
-@@ -5090,4 +5091,12 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
-                 "', location=" + super.toString() +
-                 ')';
+@@ -5162,4 +5163,12 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+     public void setTimeSinceRest(int timeSinceRest) {
+         this.timeSinceRest = timeSinceRest;
      }
 +
 +    // Radix start
@@ -39,7 +39,7 @@ index 150aeb08..d662303b 100644
 +    // Radix end
  }
 diff --git a/src/main/java/cn/nukkit/entity/EntityLiving.java b/src/main/java/cn/nukkit/entity/EntityLiving.java
-index c086e258..03581036 100644
+index c086e2588..03581036f 100644
 --- a/src/main/java/cn/nukkit/entity/EntityLiving.java
 +++ b/src/main/java/cn/nukkit/entity/EntityLiving.java
 @@ -98,7 +98,8 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
@@ -53,7 +53,7 @@ index c086e258..03581036 100644
  
      @Override
 diff --git a/src/main/java/cn/nukkit/entity/item/EntityBoat.java b/src/main/java/cn/nukkit/entity/item/EntityBoat.java
-index cf01f678..a409f9b8 100644
+index cf01f678c..a409f9b86 100644
 --- a/src/main/java/cn/nukkit/entity/item/EntityBoat.java
 +++ b/src/main/java/cn/nukkit/entity/item/EntityBoat.java
 @@ -374,7 +374,7 @@ public class EntityBoat extends EntityVehicle {
@@ -66,10 +66,10 @@ index cf01f678..a409f9b8 100644
              }
  
 diff --git a/src/main/java/cn/nukkit/entity/item/EntityMinecartAbstract.java b/src/main/java/cn/nukkit/entity/item/EntityMinecartAbstract.java
-index e474a9df..d1c194d4 100644
+index 3341469cb..6c1f06cc3 100644
 --- a/src/main/java/cn/nukkit/entity/item/EntityMinecartAbstract.java
 +++ b/src/main/java/cn/nukkit/entity/item/EntityMinecartAbstract.java
-@@ -296,7 +296,7 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
+@@ -281,7 +281,7 @@ public abstract class EntityMinecartAbstract extends EntityVehicle {
  
      @Override
      public void applyEntityCollision(cn.nukkit.entity.Entity entity) {
@@ -79,10 +79,10 @@ index e474a9df..d1c194d4 100644
                      && !(entity instanceof EntityHuman)
                      && motionX * motionX + motionZ * motionZ > 0.01D
 diff --git a/src/main/java/cn/nukkit/entity/projectile/EntityProjectile.java b/src/main/java/cn/nukkit/entity/projectile/EntityProjectile.java
-index 719bfaac..0d6063c4 100644
+index e1e13de47..c084a3869 100644
 --- a/src/main/java/cn/nukkit/entity/projectile/EntityProjectile.java
 +++ b/src/main/java/cn/nukkit/entity/projectile/EntityProjectile.java
-@@ -135,9 +135,7 @@ public abstract class EntityProjectile extends Entity {
+@@ -136,9 +136,7 @@ public abstract class EntityProjectile extends Entity {
              Entity nearEntity = null;
  
              for (Entity entity : list) {

@@ -1,11 +1,11 @@
-From ba35eda9397792964c1a23804e66235b6be0112c Mon Sep 17 00:00:00 2001
+From 620bf694371f7f6ddb0e969e527295b080c10266 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Wed, 8 Jul 2020 19:19:25 -0500
 Subject: [PATCH] This is Radix
 
 
 diff --git a/pom.xml b/pom.xml
-index 0f862f67..23556af6 100644
+index 9bc50d980..9b732b3c5 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -2,9 +2,9 @@
@@ -21,27 +21,20 @@ index 0f862f67..23556af6 100644
      <version>1.0-SNAPSHOT</version>
  
      <properties>
-@@ -40,6 +40,7 @@
+@@ -39,7 +39,7 @@
+             </snapshots>
          </repository>
      </repositories>
- 
-+    <!--
-     <distributionManagement>
-         <repository>
-             <id>releases</id>
-@@ -52,6 +53,7 @@
-             <url>https://repo.nukkitx.com/snapshot</url>
-         </snapshotRepository>
-     </distributionManagement>
-+    -->
- 
+-
++    
      <dependencies>
          <dependency>
+             <groupId>com.nukkitx.network</groupId>
 diff --git a/src/main/java/cn/nukkit/Server.java b/src/main/java/cn/nukkit/Server.java
-index 89206b40..6022a1de 100644
+index 09e6f0789..e9f455562 100644
 --- a/src/main/java/cn/nukkit/Server.java
 +++ b/src/main/java/cn/nukkit/Server.java
-@@ -1246,8 +1246,8 @@ public class Server {
+@@ -1267,8 +1267,8 @@ public class Server {
          return this.queryRegenerateEvent;
      }
  
@@ -53,7 +46,7 @@ index 89206b40..6022a1de 100644
  
      public boolean isRunning() {
 diff --git a/src/main/java/cn/nukkit/console/NukkitConsole.java b/src/main/java/cn/nukkit/console/NukkitConsole.java
-index a83a589b..cec927fa 100644
+index a83a589b7..cec927fa0 100644
 --- a/src/main/java/cn/nukkit/console/NukkitConsole.java
 +++ b/src/main/java/cn/nukkit/console/NukkitConsole.java
 @@ -56,7 +56,7 @@ public class NukkitConsole extends SimpleTerminalConsole {

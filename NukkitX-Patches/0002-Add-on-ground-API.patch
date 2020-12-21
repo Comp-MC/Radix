@@ -1,14 +1,14 @@
-From e4f5f1fdaabfd587c9ba33b2a570e495567eb54b Mon Sep 17 00:00:00 2001
+From 71e3d98ac50428bf3f4f5e7e96bec20062b6d025 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Wed, 8 Jul 2020 20:20:40 -0500
 Subject: [PATCH] Add on ground API
 
 
 diff --git a/src/main/java/cn/nukkit/Player.java b/src/main/java/cn/nukkit/Player.java
-index 842b38b1..eefab9e8 100644
+index 9c8a2f984..12d0927b1 100644
 --- a/src/main/java/cn/nukkit/Player.java
 +++ b/src/main/java/cn/nukkit/Player.java
-@@ -1391,12 +1391,23 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+@@ -1373,12 +1373,23 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                  }
              }
  
@@ -35,7 +35,7 @@ index 842b38b1..eefab9e8 100644
          boolean portal = false;
 diff --git a/src/main/java/cn/nukkit/event/player/PlayerOnGroundEvent.java b/src/main/java/cn/nukkit/event/player/PlayerOnGroundEvent.java
 new file mode 100644
-index 00000000..8d4b5049
+index 000000000..8d4b50498
 --- /dev/null
 +++ b/src/main/java/cn/nukkit/event/player/PlayerOnGroundEvent.java
 @@ -0,0 +1,25 @@

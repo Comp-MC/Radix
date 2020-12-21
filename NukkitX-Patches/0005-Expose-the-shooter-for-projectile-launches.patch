@@ -1,14 +1,14 @@
-From 2e3e3a7da32c1eb972adcb6eb4b3f740a8f11747 Mon Sep 17 00:00:00 2001
+From 6cce15918ace7ceeb05fd6937d0d29af4514302f Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Wed, 8 Jul 2020 22:47:01 -0500
 Subject: [PATCH] Expose the shooter for projectile launches
 
 
 diff --git a/src/main/java/cn/nukkit/Player.java b/src/main/java/cn/nukkit/Player.java
-index d662303b..e68a965e 100644
+index 63d532931..d0657c397 100644
 --- a/src/main/java/cn/nukkit/Player.java
 +++ b/src/main/java/cn/nukkit/Player.java
-@@ -5058,7 +5058,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+@@ -5122,7 +5122,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
          EntityFishingHook fishingHook = new EntityFishingHook(chunk, nbt, this);
          fishingHook.setMotion(new Vector3(-Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)) * f * f, -Math.sin(Math.toRadians(pitch)) * f * f,
                  Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)) * f * f));
@@ -18,7 +18,7 @@ index d662303b..e68a965e 100644
          if (ev.isCancelled()) {
              fishingHook.kill();
 diff --git a/src/main/java/cn/nukkit/event/entity/ProjectileLaunchEvent.java b/src/main/java/cn/nukkit/event/entity/ProjectileLaunchEvent.java
-index 8b9b08c6..4804ca59 100644
+index 8b9b08c60..4804ca59f 100644
 --- a/src/main/java/cn/nukkit/event/entity/ProjectileLaunchEvent.java
 +++ b/src/main/java/cn/nukkit/event/entity/ProjectileLaunchEvent.java
 @@ -1,5 +1,6 @@
@@ -49,7 +49,7 @@ index 8b9b08c6..4804ca59 100644
 +    }
  }
 diff --git a/src/main/java/cn/nukkit/item/ItemBow.java b/src/main/java/cn/nukkit/item/ItemBow.java
-index af5f2306..8ab69e10 100644
+index af5f23061..8ab69e100 100644
 --- a/src/main/java/cn/nukkit/item/ItemBow.java
 +++ b/src/main/java/cn/nukkit/item/ItemBow.java
 @@ -132,7 +132,7 @@ public class ItemBow extends ItemTool {
@@ -62,7 +62,7 @@ index af5f2306..8ab69e10 100644
                  if (projectev.isCancelled()) {
                      entityShootBowEvent.getProjectile().kill();
 diff --git a/src/main/java/cn/nukkit/item/ItemTrident.java b/src/main/java/cn/nukkit/item/ItemTrident.java
-index f56d3098..fc133a8b 100644
+index f56d30983..fc133a8b9 100644
 --- a/src/main/java/cn/nukkit/item/ItemTrident.java
 +++ b/src/main/java/cn/nukkit/item/ItemTrident.java
 @@ -91,7 +91,7 @@ public class ItemTrident extends ItemTool {
@@ -75,7 +75,7 @@ index f56d3098..fc133a8b 100644
                  if (ev.isCancelled()) {
                      entityShootBowEvent.getProjectile().kill();
 diff --git a/src/main/java/cn/nukkit/item/ProjectileItem.java b/src/main/java/cn/nukkit/item/ProjectileItem.java
-index 5daac1d2..b06c3085 100644
+index 5daac1d27..b06c30858 100644
 --- a/src/main/java/cn/nukkit/item/ProjectileItem.java
 +++ b/src/main/java/cn/nukkit/item/ProjectileItem.java
 @@ -53,7 +53,7 @@ public abstract class ProjectileItem extends Item {

@@ -1,33 +1,45 @@
-From 0af05073aea5598a3502b967d5bc584617d8b96b Mon Sep 17 00:00:00 2001
+From ac9de6ba762ef8d0e47da32d286de457d6835d09 Mon Sep 17 00:00:00 2001
 From: Austin Mayes <austin@avicus.net>
 Date: Wed, 8 Jul 2020 21:16:37 -0500
 Subject: [PATCH] Improve XP pickup control
 
 
+diff --git a/pom.xml b/pom.xml
+index 9b732b3c5..b95ab9f62 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -39,7 +39,7 @@
+             </snapshots>
+         </repository>
+     </repositories>
+-    
++
+     <dependencies>
+         <dependency>
+             <groupId>com.nukkitx.network</groupId>
 diff --git a/src/main/java/cn/nukkit/Player.java b/src/main/java/cn/nukkit/Player.java
-index eefab9e8..150aeb08 100644
+index 12d0927b1..28d207477 100644
 --- a/src/main/java/cn/nukkit/Player.java
 +++ b/src/main/java/cn/nukkit/Player.java
-@@ -23,6 +23,7 @@ import cn.nukkit.event.entity.ProjectileLaunchEvent;
- import cn.nukkit.event.inventory.InventoryCloseEvent;
+@@ -24,6 +24,7 @@ import cn.nukkit.event.inventory.InventoryCloseEvent;
  import cn.nukkit.event.inventory.InventoryPickupArrowEvent;
  import cn.nukkit.event.inventory.InventoryPickupItemEvent;
+ import cn.nukkit.event.inventory.InventoryPickupTridentEvent;
 +import cn.nukkit.event.inventory.InventoryPickupXPEvent;
  import cn.nukkit.event.player.*;
  import cn.nukkit.event.player.PlayerAsyncPreLoginEvent.LoginResult;
  import cn.nukkit.event.player.PlayerInteractEvent.Action;
-@@ -250,6 +251,10 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
-     protected double lastRightClickTime = 0.0;
+@@ -253,6 +254,9 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
      protected Vector3 lastRightClickPos = null;
  
+     private int timeSinceRest;
 +    // Radix start
 +    boolean allowedToPickupXP = true;
 +    // Radix end
-+
+ 
      public int getStartActionTick() {
          return startAction;
-     }
-@@ -1331,6 +1336,10 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+@@ -1313,6 +1317,10 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
          return this.gamemode == SPECTATOR;
      }
  
@@ -38,7 +50,7 @@ index eefab9e8..150aeb08 100644
      public boolean isAdventure() {
          return this.gamemode == ADVENTURE;
      }
-@@ -4940,9 +4949,17 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
+@@ -5014,9 +5022,17 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
          }
  
          int tick = this.getServer().getTick();
@@ -56,9 +68,9 @@ index eefab9e8..150aeb08 100644
 +
                  int exp = xpOrb.getExp();
                  entity.kill();
-                 this.getLevel().addSound(this, Sound.RANDOM_ORB);
+                 this.getLevel().addLevelEvent(this, LevelEventPacket.EVENT_SOUND_EXPERIENCE_ORB);
 diff --git a/src/main/java/cn/nukkit/entity/item/EntityXPOrb.java b/src/main/java/cn/nukkit/entity/item/EntityXPOrb.java
-index 7c0dd239..983f0254 100644
+index 7c0dd2390..983f02540 100644
 --- a/src/main/java/cn/nukkit/entity/item/EntityXPOrb.java
 +++ b/src/main/java/cn/nukkit/entity/item/EntityXPOrb.java
 @@ -144,14 +144,14 @@ public class EntityXPOrb extends Entity {
@@ -80,7 +92,7 @@ index 7c0dd239..983f0254 100644
  
 diff --git a/src/main/java/cn/nukkit/event/inventory/InventoryPickupXPEvent.java b/src/main/java/cn/nukkit/event/inventory/InventoryPickupXPEvent.java
 new file mode 100644
-index 00000000..13af2f32
+index 000000000..13af2f323
 --- /dev/null
 +++ b/src/main/java/cn/nukkit/event/inventory/InventoryPickupXPEvent.java
 @@ -0,0 +1,27 @@
